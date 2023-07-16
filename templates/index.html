@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.1.3/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card {
+            height: 100vh;  /* 100% of the viewport height */
+            overflow: auto;  /* Enable scrolling if the content overflows */
+        }
+    </style>
+</head>
+<body class="container-fluid">
+    <div class="row">
+        <div class="col-md-6">
+            <div class="card my-3">
+                <img id="viz" src="/uploads/placeholder.png" alt="Upload an image to see the visualization here" class="card-img-top">
+                <div class="card-body">
+                    <h5 class="card-title">Detected Cell Areas</h5>
+                    <div id="results" class="my-3"></div>
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="card my-3">
+                <div class="card-body">
+                    <h5 class="card-title">Upload Image</h5>
+                    <form id="upload-form">
+                        <div class="form-group">
+                            <label for="file">Image file:</label>
+                            <input type="file" id="file" name="file" class="form-control-file">
+                            <select id="file-select" class="form-control-file">
+                                <!-- File options will be populated here -->
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="threshold">Threshold:</label>
+                            <input type="number" id="threshold" name="threshold" min="0" max="255" class="form-control" value="130">
+                        </div>
+                        <div class="form-group">
+                            <label for="minsize">Minimum size:</label>
+                            <input type="number" id="minsize" name="minsize" min="1" max="100000" class="form-control" value="5000">
+                        </div>
+                        <div class="form-group">
+                            <label for="scale">Scale Factor:</label>
+                            <input type="number" id="scale" name="scale" step="0.01" min="0.01" max="1" class="form-control" value="0.35">
+                        </div>
+                        <div class="form-group">
+                            <label for="offset">Offset:</label>
+                            <input type="number" id="offset" name="offset" step="0.01" min="0.01" max="1" class="form-control" value="0.6">
+                        </div>
+                        <button type="submit" class="btn btn-primary">Submit</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // When the page loads, fetch the filenames and populate the dropdown
+    window.onload = function() {
+        fetch('/get-filenames')
+        .then(response => response.json())
+        .then(data => {
+            const select = document.getElementById('file-select');
+            data.files.forEach(file => {
+                const option = document.createElement('option');
+                option.value = file;
+                option.text = file;
+                select.add(option);
+            });
+        });
+    };
+
+    // When a new file is uploaded, process and render the image
+    document.getElementById('file').onchange = function() {
+        processImage();
+    };
+
+    // When a different file is selected from the dropdown, process and render the image
+    document.getElementById('file-select').onchange = function() {
+        processImage();
+    };
+
+    // When the form is submitted, process and render the image
+    document.getElementById('upload-form').onsubmit = function(e) {
+        e.preventDefault();
+        processImage();
+    };
+
+    // Function to process and render the image
+    function processImage() {
+        var formData = new FormData();
+        formData.append('file', document.getElementById('file').files[0] || document.getElementById('file-select').value);
+        formData.append('threshold', document.getElementById('threshold').value);
+        formData.append('minsize', document.getElementById('minsize').value);
+        formData.append('scale', document.getElementById('scale').value);
+        formData.append('offset', document.getElementById('offset').value);
+        fetch('/upload', {
+            method: 'POST',
+            body: formData
+        })
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('results').innerText = JSON.stringify(data.areas);
+            // Add a cache-busting query parameter
+            document.getElementById('viz').src = '/uploads/' + data.viz_filename + '?t=' + new Date().getTime();
+        })
+        .catch(error => console.error('Error:', error));
+    };
+    </script>
+
+</body>
+</html>
