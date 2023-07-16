@@ -30,7 +30,7 @@ def threshold_img(image, threshold=110, scale_factor=0.5, offset=0.5) -> np.ndar
 
 
 if __name__ == '__main__':
-    _image = cv2.imread('./cells.jpg', 0)
+    _image = cv2.imread('../cells.jpg', 0)
     # Display the resulting image
     bin_img = threshold_img(_image)
     plt.imshow(bin_img)

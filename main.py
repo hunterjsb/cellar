@@ -1,6 +1,6 @@
 from flask import Flask, request, render_template, send_from_directory
 import cv2
-from skimage import measure, morphology, color
+from skimage import measure, color
 import matplotlib.pyplot as plt
 from werkzeug.utils import secure_filename
 import numpy as np
@@ -12,7 +12,7 @@ from scipy import ndimage as ndi
 import os
 
 from utils import cell_names as names
-from thresholding import threshold_img
+from utils.thresholding import threshold_img
 
 app = Flask(__name__, static_folder='./imgs')
 
@@ -62,7 +62,7 @@ def upload():
     # Create a visualization for the labeled regions
     fig, ax = plt.subplots(figsize=(10, 10))
     image_label_overlay = color.label2rgb(labels, image=binary_image, bg_label=0, alpha=0.3)
-    ax.imshow(image_label_overlay, cmap='nipy_spectral')
+    ax.imshow(image_label_overlay)
 
     i = 0
     for region in properties:
@@ -73,7 +73,7 @@ def upload():
 
             # Get the name for this cell
             name = names[i]  # This will raise an IndexError if there are more cells than names
-            i += 1
+            i += 1 if i < len(names) - 1 else -len(names) + 1
 
             # Draw the bounding box and label
             minr, minc, maxr, maxc = region.bbox
