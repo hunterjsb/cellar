@@ -8,7 +8,6 @@ from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 from scipy import ndimage as ndi
 
-
 import os
 
 from utils import cell_names as names
