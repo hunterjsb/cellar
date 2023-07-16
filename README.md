@@ -97,3 +97,8 @@ The processed distance map is then multiplied with the original image. This has 
 
 #### Thresholding: 
 Finally, a global threshold is applied to the resulting image to create a binary image. Pixels with values above the threshold are set to white (255), and pixels with values below the threshold are set to black (0).
+
+### Watershedding
+Watershedding is a popular image segmentation technique used in image processing. It works by treating the image like a topographical map, with bright pixels representing high elevations and dark pixels representing low elevations. The algorithm then "floods" the image from the bottom up, with different "watersheds" forming in the basins between high points. These watersheds then serve as the boundaries between different objects in the image.
+
+The watershed algorithm is used in this project to separate overlapping cells. After creating a binary image using the threshold_img function, the script uses the watershed algorithm to segment the image, creating a label for each detected cell. These labels are then used to calculate the area of each cell and display the processed image with each cell labeled and outlined.
