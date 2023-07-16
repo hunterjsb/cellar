@@ -1,6 +1,6 @@
-# TEuPAC
+# CellAr
 
-###  W
+### Cell Area Calculator 
 
 This project uses image processing techniques to detect and quantify the area of cells in an image. Users can upload an image, and the application will process the image, detect cells, calculate their areas, and display the processed image with the detected cells.
 
@@ -45,3 +45,55 @@ The threshold image function creates a distance map where the value of each pixe
 The script then uses the watershed algorithm for segmentation. It starts by computing the Euclidean distance from every binary pixel to the nearest zero pixel and finds the peaks in this distance map. These peaks are used as markers for the watershed algorithm, which segments the image into different regions.
 
 The script calculates the area of each of these regions in square nanometers and labels each cell with its corresponding area.
+
+## Image Processing and Mathematics
+
+In the `threshold_img` function, the image processing involves several mathematical operations. Here's a step-by-step breakdown of what happens:
+
+```python
+import numpy as np
+import cv2
+
+def threshold_img(image, threshold=110, scale_factor=0.5, offset=0.5) -> np.ndarray:
+    # Calculate the Euclidean distance of each pixel from the center
+    x = np.arange(image.shape[1])
+    y = np.arange(image.shape[0])
+    xx, yy = np.meshgrid(x, y)
+    center_x = image.shape[1] / 2
+    center_y = image.shape[0] / 2
+    distance_map = np.sqrt((xx - center_x)**2 + (yy - center_y)**2)
+
+    # Normalize the distance map to have values between 0 and 1
+    distance_map = (distance_map - distance_map.min()) / (distance_map.max() - distance_map.min())
+
+    # Scale and offset the distance map
+    distance_map = scale_factor * distance_map + offset
+
+    # Clamp values to the range [0, 1]
+    distance_map = np.clip(distance_map, 0, 1)
+
+    # Multiply the distance map with the original image
+    image_adjusted = (image * distance_map).astype(np.uint8)
+
+    # Apply a global threshold to the resulting image
+    _, binary_image = cv2.threshold(image_adjusted, threshold, 255, cv2.THRESH_BINARY)
+    return binary_image
+```
+
+#### Euclidean Distance Calculation: 
+For each pixel in the image, we calculate its Euclidean distance from the center of the image. This creates a distance map where the value of each pixel is proportional to its distance from the center.
+
+#### Normalization: 
+The distance map is then normalized to have values between 0 and 1. This is done by subtracting the minimum value of the distance map from each value, and then dividing by the range of the distance map (max - min).
+
+#### Scaling and Offsetting: 
+The normalized distance map is then scaled and offset according to the user's input. The scaling step multiplies each value in the distance map by the scale factor, effectively changing the "spread" of the values. The offset step then adds the offset value to each value in the distance map.
+
+#### Clamping: 
+The values in the distance map are then clamped to the range [0, 1] to ensure that no values fall outside this range after scaling and offsetting.
+
+#### Multiplication with Original Image: 
+The processed distance map is then multiplied with the original image. This has the effect of making the center of the image brighter and the edges darker, because the values in the distance map are larger near the center and smaller near the edges.
+
+#### Thresholding: 
+Finally, a global threshold is applied to the resulting image to create a binary image. Pixels with values above the threshold are set to white (255), and pixels with values below the threshold are set to black (0).
