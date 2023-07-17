@@ -24,7 +24,7 @@ def get_filenames():
 
 @app.route('/')
 def home():
-    return render_template('index.html')  # This HTML file should contain the form for image upload and threshold slider
+    return render_template('index.html')
 
 
 @app.route('/upload', methods=['POST'])
@@ -55,23 +55,26 @@ def upload():
     scale_factor_nm2_per_px2 = scale_factor_nm_per_px ** 2  # nm^2/px^2
 
     properties = measure.regionprops(labels)
-    areas_px = [prop.area for prop in properties if prop.area >= minsize]  # Filter out small regions
-    areas_nm2 = [round(area_px * scale_factor_nm2_per_px2, 2) for area_px in areas_px]  # Convert to nm^2
+    # areas_px = [prop.area for prop in properties if prop.area >= minsize]  # Filter out small regions
+    # areas_nm2 = [round(area_px * scale_factor_nm2_per_px2, 2) for area_px in areas_px]  # Convert to nm^2
 
     # Create a visualization for the labeled regions
     fig, ax = plt.subplots(figsize=(10, 10))
     image_label_overlay = color.label2rgb(labels, image=binary_image, bg_label=0, alpha=0.3)
     ax.imshow(image_label_overlay)
 
-    i = 0
+    i, total_area = 0, 0
+    labeled_areas = {}
     for region in properties:
         if region.area > minsize:
             # Calculate area in nm^2 and format the string
             area_nm2 = region.area * scale_factor_nm2_per_px2
             area_str = f'{area_nm2:.2f} nm^2'
+            total_area += area_nm2
 
             # Get the name for this cell
             name = names[i]  # This will raise an IndexError if there are more cells than names
+            labeled_areas[name] = area_nm2
             i += 1 if i < len(names) - 1 else -len(names) + 1
 
             # Draw the bounding box and label
@@ -85,7 +88,7 @@ def upload():
     viz_filepath = os.path.join(app.static_folder, viz_filename)
     plt.savefig(viz_filepath)
 
-    return {'areas': areas_nm2, 'viz_filename': viz_filename}  # Return the areas and visualization filename as JSON
+    return {'areas': labeled_areas, 'viz_filename': viz_filename, 'avg_area': total_area/i}
 
 
 @app.route('/uploads/<filename>')
