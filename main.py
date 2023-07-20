@@ -33,6 +33,8 @@ def upload():
     minsize = int(request.form.get('minsize'))
     scale = float(request.form.get('scale'))
     offset = float(request.form.get('offset'))
+    scale_factor_nm_per_px = int(request.form.get('nm_px')) / 155
+    scale_factor_nm2_per_px2 = scale_factor_nm_per_px ** 2  # nm^2/px^2
 
     file = request.files['file']  # Get the file from the form
     filename = secure_filename(file.filename)
@@ -50,9 +52,6 @@ def upload():
     mask[tuple(coords.T)] = True
     markers, _ = ndi.label(mask)
     labels: np.ndarray = watershed(-distance, markers, mask=binary_image)
-
-    scale_factor_nm_per_px = 100 / 155  # nm/px
-    scale_factor_nm2_per_px2 = scale_factor_nm_per_px ** 2  # nm^2/px^2
 
     properties = measure.regionprops(labels)
     # areas_px = [prop.area for prop in properties if prop.area >= minsize]  # Filter out small regions
