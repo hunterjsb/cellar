@@ -31,10 +31,11 @@ def home():
 def upload():
     threshold = request.form.get('threshold')
     minsize = int(request.form.get('minsize'))
+    maxsize = int(request.form.get('maxsize'))
     scale = float(request.form.get('scale'))
     offset = float(request.form.get('offset'))
-    scale_factor_nm_per_px = int(request.form.get('nm_px')) / 155
-    scale_factor_nm2_per_px2 = scale_factor_nm_per_px ** 2  # nm^2/px^2
+    px_nm = float(request.form.get('px_nm'))
+    scale_factor_px2_per_nm2 = px_nm ** 2  # nm^2/px^2
 
     file = request.files['file']  # Get the file from the form
     filename = secure_filename(file.filename)
@@ -42,6 +43,7 @@ def upload():
     file.save(filepath)
     image = cv2.imread(filepath, 0)
 
+    # apply proprietary thresholding method
     binary_image: np.ndarray = threshold_img(image, int(threshold), scale, offset)
     binary_image: np.ndarray = cv2.bitwise_not(binary_image)
 
@@ -52,10 +54,7 @@ def upload():
     mask[tuple(coords.T)] = True
     markers, _ = ndi.label(mask)
     labels: np.ndarray = watershed(-distance, markers, mask=binary_image)
-
     properties = measure.regionprops(labels)
-    # areas_px = [prop.area for prop in properties if prop.area >= minsize]  # Filter out small regions
-    # areas_nm2 = [round(area_px * scale_factor_nm2_per_px2, 2) for area_px in areas_px]  # Convert to nm^2
 
     # Create a visualization for the labeled regions
     fig, ax = plt.subplots(figsize=(10, 10))
@@ -65,16 +64,15 @@ def upload():
     i, total_area = 0, 0
     labeled_areas = {}
     for region in properties:
-        if region.area > minsize:
-            # Calculate area in nm^2 and format the string
-            area_nm2 = region.area * scale_factor_nm2_per_px2
+        area_nm2 = region.area / scale_factor_px2_per_nm2
+        if minsize < area_nm2 < maxsize:
             area_str = f'{area_nm2:.2f} nm^2'
             total_area += area_nm2
 
             # Get the name for this cell
-            name = names[i]  # This will raise an IndexError if there are more cells than names
+            name = names[i]
             labeled_areas[name] = area_nm2
-            i += 1 if i < len(names) - 1 else -len(names) + 1
+            i += 1 if i < len(names) - 1 else -len(names) + 1  # avoid 'name' IndexError
 
             # Draw the bounding box and label
             minr, minc, maxr, maxc = region.bbox
@@ -87,7 +85,7 @@ def upload():
     viz_filepath = os.path.join(app.static_folder, viz_filename)
     plt.savefig(viz_filepath)
 
-    return {'areas': labeled_areas, 'viz_filename': viz_filename, 'avg_area': total_area/i}
+    return {'areas': labeled_areas, 'viz_filename': viz_filename, 'avg_area': total_area/i if i else total_area}
 
 
 @app.route('/uploads/<filename>')
