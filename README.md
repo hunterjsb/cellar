@@ -1,5 +1,10 @@
 # CellAr
 
+- [Interface](#user-interface)
+- [Calculations](#calculations)
+    - [Equations](#equations)
+    - [Methods](#explanation-of-methods)
+
 ### Cell Area Calculator 
 
 This project uses image processing techniques to detect and quantify the area of cells in an image. Users can upload an image, and the application will process the image, detect cells, calculate their areas, and display the processed image with the detected cells.
@@ -46,39 +51,58 @@ The script then uses the watershed algorithm for segmentation. It starts by comp
 
 The script calculates the area of each of these regions in square nanometers and labels each cell with its corresponding area.
 
-## Image Processing and Mathematics
+### Equations
 
-In the `threshold_img` function, the image processing involves several mathematical operations. Here's a step-by-step breakdown of what happens:
+- Creating a distance map:
 
-```python
-import numpy as np
-import cv2
+    $`d_{ij} = \sqrt{(i - c_x)^2 + (j - c_y)^2}`$
+   
+    where $`d_{ij}`$ is the distance of a pixel at location $`(i, j)`$ from the center of the image $`(c_x, c_y)`$.
 
-def threshold_img(image, threshold=110, scale_factor=0.5, offset=0.5) -> np.ndarray:
-    # Calculate the Euclidean distance of each pixel from the center
-    x = np.arange(image.shape[1])
-    y = np.arange(image.shape[0])
-    xx, yy = np.meshgrid(x, y)
-    center_x = image.shape[1] / 2
-    center_y = image.shape[0] / 2
-    distance_map = np.sqrt((xx - center_x)**2 + (yy - center_y)**2)
+- Normalizing the distance map:
+    
+    $`d'_{ij} = \frac{d_{ij} - \min(d)}{\max(d) - \min(d)}`$
+   
+    where $`d'_{ij}`$ is the normalized distance, and $`min(d)`$ and $`max(d)`$ are the minimum and maximum values in the distance map, respectively.
 
-    # Normalize the distance map to have values between 0 and 1
-    distance_map = (distance_map - distance_map.min()) / (distance_map.max() - distance_map.min())
+- Scaling and offsetting the distance map:
 
-    # Scale and offset the distance map
-    distance_map = scale_factor * distance_map + offset
+    $`d''_{ij} = \text{scale} \cdot d'_{ij} + \text{offset}`$
 
-    # Clamp values to the range [0, 1]
-    distance_map = np.clip(distance_map, 0, 1)
+    where $`d''_{ij}`$ is the final distance map used, and $`scale`$ and $`offset`$ are the provided scale and offset values.
 
-    # Multiply the distance map with the original image
-    image_adjusted = (image * distance_map).astype(np.uint8)
+- Adjusting the image:
 
-    # Apply a global threshold to the resulting image
-    _, binary_image = cv2.threshold(image_adjusted, threshold, 255, cv2.THRESH_BINARY)
-    return binary_image
-```
+    $`I'_{ij} = I_{ij} \cdot d''_{ij}`$
+
+    where $`I'_{ij}`$ is the pixel value in the adjusted image, and $`I_{ij}`$ is the pixel value in the original grayscale image.
+
+- Thresholding the image:
+
+    $`\text{if } I'_{ij} \geq \text{threshold, then } B_{ij} = 255 \text{ else } B_{ij} = 0`$
+
+    where $`B_{ij}`$ is the pixel value in the binary image.
+
+- Computing the Euclidean distance from every white pixel to the nearest black pixel:
+
+    $`D_{ij} = \min(\sqrt{(i - i')^2 + (j - j')^2})`$
+
+    where $`D_{ij}`$ is the Euclidean distance at pixel $`(i, j)`$, and $`(i', j')`$ are the coordinates of all black pixels in the image.
+
+- Applying the watershed algorithm, labelling the regions, and computing the area of each cell:
+
+    $`W(D_{ij})`$
+
+
+- Converting the area to nm²:
+
+    $`A_{\text{nm}^2} = A_{\text{px}^2} / \text{scale\_factor\_px2\_per\_nm2}`$
+
+    where $`A_{\text{nm}^2}`$ is the area in nm², $`A_{\text{px}^2}`$ is the area in pixels, and $`scale_factor_px2_per_nm2`$ is the provided conversion factor.
+
+Please keep in mind that the above LaTeX represents only a rough approximation of the image processing algorithms, which include many additional steps and subtleties not captured by these equations. Some parts of the code, such as the peak finding and the watershed algorithm, are quite complex and would require extensive mathematical exposition to fully capture in LaTeX notation.
+
+### Explanation of Methods
 
 #### Euclidean Distance Calculation: 
 For each pixel in the image, we calculate its Euclidean distance from the center of the image. This creates a distance map where the value of each pixel is proportional to its distance from the center.
