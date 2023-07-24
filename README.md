@@ -92,7 +92,7 @@ The script calculates the area of each of these regions in square nanometers and
 
     $`A_{\text{nm}^2} = A_{\text{px}^2} / \text{scale\_factor\_px2\_per\_nm2}`$
 
-    where $`A_{\text{nm}^2}`$ is the area in nm², $`A_{\text{px}^2}`$ is the area in pixels, and $`\text{scale_factor_px2_per_nm2}`$ is the provided conversion factor.
+    where $`A_{\text{nm}^2}`$ is the area in nm², $`A_{\text{px}^2}`$ is the area in pixels, and $`\text{scale\_factor\_px2\_per\_nm2}`$ is the provided conversion factor.
 
 Please keep in mind that the above LaTeX represents only a rough approximation of the image processing algorithms, which include many additional steps and subtleties not captured by these equations. Some parts of the code, such as the peak finding and the watershed algorithm, are quite complex and would require extensive mathematical exposition to fully capture in LaTeX notation.
 
