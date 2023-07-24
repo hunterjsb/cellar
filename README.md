@@ -39,12 +39,6 @@ After the user clicks the "Submit" button, the application processes the image a
 
 ## Calculations
 
-The script converts the pixel measurements to nanometers using a given conversion factor. The default conversion factor is calculated as follows:
-
-- First, it is determined that 155 pixels correspond to 100 nanometers. This gives a conversion factor of `100 / 155` nanometers per pixel.
-
-- This is then squared to convert the area measurements from square pixels to square nanometers.
-
 The threshold image function creates a distance map where the value of each pixel is the Euclidean distance from the center of the image. This map is then normalized to the range [0, 1], scaled and offset according to the user's input, and finally multiplied with the original image. The resulting image is then thresholded to create a binary image where the cells are distinct from the background.
 
 The script then uses the watershed algorithm for segmentation. It starts by computing the Euclidean distance from every binary pixel to the nearest zero pixel and finds the peaks in this distance map. These peaks are used as markers for the watershed algorithm, which segments the image into different regions.
@@ -98,7 +92,7 @@ The script calculates the area of each of these regions in square nanometers and
 
     $`A_{\text{nm}^2} = A_{\text{px}^2} / \text{scale\_factor\_px2\_per\_nm2}`$
 
-    where $`A_{\text{nm}^2}`$ is the area in nm², $`A_{\text{px}^2}`$ is the area in pixels, and $`scale_factor_px2_per_nm2`$ is the provided conversion factor.
+    where $`A_{\text{nm}^2}`$ is the area in nm², $`A_{\text{px}^2}`$ is the area in pixels, and $`\text{scale_factor_px2_per_nm2}`$ is the provided conversion factor.
 
 Please keep in mind that the above LaTeX represents only a rough approximation of the image processing algorithms, which include many additional steps and subtleties not captured by these equations. Some parts of the code, such as the peak finding and the watershed algorithm, are quite complex and would require extensive mathematical exposition to fully capture in LaTeX notation.
 
