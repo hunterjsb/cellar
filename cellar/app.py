@@ -1,6 +1,7 @@
 from flask import Flask, request, render_template, send_from_directory
 import cv2
 from skimage import measure, color
+import matplotlib
 import matplotlib.pyplot as plt
 from werkzeug.utils import secure_filename
 import numpy as np
@@ -13,6 +14,7 @@ import os
 from cellar.utils import cell_names as names
 from cellar.utils.thresholding import threshold_img
 
+matplotlib.use('Agg')  # Use the 'Agg' backend for Matplotlib
 app = Flask(__name__, static_folder='imgs')
 
 
