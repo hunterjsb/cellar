@@ -1,6 +1,9 @@
+import os
+
 import numpy as np
 import cv2
 import matplotlib.pyplot as plt
+from werkzeug.utils import secure_filename
 
 
 def threshold_img(image, threshold=110, radial_contrast=0.5, image_brightness=0.5) -> np.ndarray:
@@ -34,6 +37,19 @@ def threshold_img(image, threshold=110, radial_contrast=0.5, image_brightness=0.
     # Apply a global threshold to the resulting image
     _, binary_image = cv2.threshold(image_adjusted, threshold, 255, cv2.THRESH_BINARY)
     return binary_image
+
+
+def save_image_binary(request, form, static_folder):
+    file = request.files['file']  # Get the file from the form
+    filename = secure_filename(file.filename)
+    filepath = os.path.join(static_folder, filename)
+    file.save(filepath)
+    image = cv2.imread(filepath, 0)
+
+    # apply thresholding
+    binary_image: np.ndarray = threshold_img(image, form.threshold, form.scale, form.offset)
+    binary_image: np.ndarray = cv2.bitwise_not(binary_image)
+    return binary_image, filename
 
 
 if __name__ == '__main__':

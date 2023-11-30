@@ -1,15 +1,13 @@
 from flask import Flask, request, render_template, send_from_directory
-import cv2
 from skimage import measure, color
 import matplotlib
 import matplotlib.pyplot as plt
-from werkzeug.utils import secure_filename
 import numpy as np
 from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 from scipy import ndimage as ndi
 
-from cellar.utils import cell_names, threshold_img
+from cellar.utils import cell_names, save_image_binary
 from cellar.models import SubmitForm
 
 import os
@@ -32,16 +30,7 @@ def home():
 @app.route('/upload', methods=['POST'])
 def upload():
     form = SubmitForm.from_request(request)
-
-    file = request.files['file']  # Get the file from the form
-    filename = secure_filename(file.filename)
-    filepath = os.path.join(app.static_folder, filename)
-    file.save(filepath)
-    image = cv2.imread(filepath, 0)
-
-    # apply proprietary thresholding method
-    binary_image: np.ndarray = threshold_img(image, form.threshold, form.scale, form.offset)
-    binary_image: np.ndarray = cv2.bitwise_not(binary_image)
+    binary_image, filename = save_image_binary(request, form, app.static_folder)
 
     # Compute Euclidean distance from every binary pixel to the nearest zero pixel then find peaks in this distance map
     distance = ndi.distance_transform_edt(binary_image)
