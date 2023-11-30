@@ -25,13 +25,13 @@ The "Threshold" input field allows users to specify a threshold value that the i
 
 The "Minimum size" input field allows users to specify the minimum size of an object (in pixels) that the image processing algorithm should consider as a cell. The value must be between 1 and 100,000. By default, the value is 5000.
 
-### Scale Factor
+### Radial Contrast (Scale Factor)
 
-The "Scale Factor" input field allows users to specify a factor that adjusts the intensity of the center-weighted thresholding. The value must be between 0.01 and 1. By default, the value is 0.35.
+The "Radial Contrast" (previously "Scale Factor") input field allows users to specify a factor that adjusts the intensity of the center-weighted thresholding. The value must be between 0.01 and 1. By default, the value is 0.35.
 
-### Offset
+### Global Brightness (Offset)
 
-The "Offset" input field allows users to specify an offset that adjusts the base threshold of the center-weighted thresholding. The value must be between 0.01 and 1. By default, the value is 0.6.
+The "Global Brightness" (previously "Offset") input field allows users to specify an offset that adjusts the base threshold of the center-weighted thresholding. The value must be between 0.01 and 1. By default, the value is 0.6.
 
 ## Output
 

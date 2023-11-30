@@ -3,7 +3,14 @@ import cv2
 import matplotlib.pyplot as plt
 
 
-def threshold_img(image, threshold=110, scale_factor=0.5, offset=0.5) -> np.ndarray:
+def threshold_img(image, threshold=110, radial_contrast=0.5, image_brightness=0.5) -> np.ndarray:
+    """
+    :param image: the image to process
+    :param threshold: determines how the final binary image distinguishes between light and dark areas
+    :param radial_contrast: controls the contrast and brightness of the image based on the distance from the center
+    :param image_brightness: uniformly adjusts the brightness across the entire image
+    :return:
+    """
     # Calculate the Euclidean distance of each pixel from the center
     x = np.arange(image.shape[1])
     y = np.arange(image.shape[0])
@@ -16,7 +23,7 @@ def threshold_img(image, threshold=110, scale_factor=0.5, offset=0.5) -> np.ndar
     distance_map = (distance_map - distance_map.min()) / (distance_map.max() - distance_map.min())
 
     # Scale and offset the distance map
-    distance_map = scale_factor * distance_map + offset
+    distance_map = radial_contrast * distance_map + image_brightness
 
     # Clamp values to the range [0, 1]
     distance_map = np.clip(distance_map, 0, 1)
@@ -30,7 +37,7 @@ def threshold_img(image, threshold=110, scale_factor=0.5, offset=0.5) -> np.ndar
 
 
 if __name__ == '__main__':
-    _image = cv2.imread('../cells.jpg', 0)
+    _image = cv2.imread('/home/hunter/PycharmProjects/cellar/imgs/cells_1.jpg', 0)
     # Display the resulting image
     bin_img = threshold_img(_image)
     plt.imshow(bin_img)
