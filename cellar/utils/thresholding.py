@@ -37,7 +37,7 @@ def threshold_img(image, threshold=110, radial_contrast=0.5, image_brightness=0.
 
 
 if __name__ == '__main__':
-    _image = cv2.imread('/home/hunter/PycharmProjects/cellar/imgs/cells_1.jpg', 0)
+    _image = cv2.imread('/cellar/imgs/cells_1.jpg', 0)
     # Display the resulting image
     bin_img = threshold_img(_image)
     plt.imshow(bin_img)
