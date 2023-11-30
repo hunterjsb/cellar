@@ -9,10 +9,10 @@ from skimage.segmentation import watershed
 from skimage.feature import peak_local_max
 from scipy import ndimage as ndi
 
-import os
+from cellar.utils import cell_names, threshold_img
+from cellar.models import SubmitForm
 
-from cellar.utils import cell_names as names
-from cellar.utils.thresholding import threshold_img
+import os
 
 matplotlib.use('Agg')  # Use the 'Agg' backend for Matplotlib
 app = Flask(__name__, static_folder='imgs')
@@ -31,13 +31,7 @@ def home():
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    threshold = request.form.get('threshold')
-    minsize = int(request.form.get('minsize'))
-    maxsize = int(request.form.get('maxsize'))
-    scale = float(request.form.get('scale'))
-    offset = float(request.form.get('offset'))
-    px_nm = float(request.form.get('px_nm'))
-    scale_factor_px2_per_nm2 = px_nm ** 2  # nm^2/px^2
+    form = SubmitForm.from_request(request)
 
     file = request.files['file']  # Get the file from the form
     filename = secure_filename(file.filename)
@@ -46,7 +40,7 @@ def upload():
     image = cv2.imread(filepath, 0)
 
     # apply proprietary thresholding method
-    binary_image: np.ndarray = threshold_img(image, int(threshold), scale, offset)
+    binary_image: np.ndarray = threshold_img(image, form.threshold, form.scale, form.offset)
     binary_image: np.ndarray = cv2.bitwise_not(binary_image)
 
     # Compute Euclidean distance from every binary pixel to the nearest zero pixel then find peaks in this distance map
@@ -66,15 +60,15 @@ def upload():
     i, total_area = 0, 0
     labeled_areas = {}
     for region in properties:
-        area_nm2 = region.area / scale_factor_px2_per_nm2
-        if minsize < area_nm2 < maxsize:
+        area_nm2 = region.area / form.scale_factor_px2_per_nm2
+        if form.minsize < area_nm2 < form.maxsize:
             area_str = f'{area_nm2:.2f} nm^2'
             total_area += area_nm2
 
             # Get the name for this cell
-            name = names[i]
+            name = cell_names[i]
             labeled_areas[name] = area_nm2
-            i += 1 if i < len(names) - 1 else -len(names) + 1  # avoid 'name' IndexError
+            i += 1 if i < len(cell_names) - 1 else -len(cell_names) + 1  # avoid 'name' IndexError
 
             # Draw the bounding box and label
             minr, minc, maxr, maxc = region.bbox
