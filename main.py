@@ -13,7 +13,7 @@ import os
 from utils import cell_names as names
 from utils.thresholding import threshold_img
 
-app = Flask(__name__, static_folder='./imgs')
+app = Flask(__name__, static_folder='imgs')
 
 
 @app.route('/get-filenames', methods=['GET'])

@@ -1,6 +1,9 @@
 import random
 
 cell_names = [
+    'Carnoy', 'Agre', 'Blobel', 'Brown', 'Cooper', 'De Duve', 'Dutrochet',
+    'Hooke', 'Horvitz', 'Kirschner', 'Van Leeuwenhoek', 'Mellman', 'Mitchell',
+    'Virchow', 'Nurse', 'Palade', 'Porter', 'Rappaport', 'Swann', 'Tsien',
     'Aristotle', 'Plato', 'Socrates', 'Darwin', 'Einstein', 'Galileo',
     'Newton', 'Hippocrates', 'Edison', 'Freud', 'Tesla', 'Curie', 'Feynman',
     'Hawking', 'Nietzsche', 'Kant', 'Hegel', 'Rousseau', 'Descartes', 'Marx',
