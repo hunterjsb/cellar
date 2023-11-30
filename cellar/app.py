@@ -8,7 +8,7 @@ from skimage.feature import peak_local_max
 from scipy import ndimage as ndi
 
 from cellar.utils import cell_names, save_image_binary
-from cellar.models import SubmitForm
+from cellar.models import FormData
 
 import os
 
@@ -29,7 +29,7 @@ def home():
 
 @app.route('/upload', methods=['POST'])
 def upload():
-    form = SubmitForm.from_request(request)
+    form = FormData.from_request(request)
     binary_image, filename = save_image_binary(request, form, app.static_folder)
 
     # Compute Euclidean distance from every binary pixel to the nearest zero pixel then find peaks in this distance map

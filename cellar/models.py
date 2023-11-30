@@ -4,7 +4,7 @@ from flask import Request
 
 
 @dataclass
-class SubmitForm:
+class FormData:
     threshold: int
     minsize: int
     maxsize: int
@@ -25,6 +25,6 @@ class SubmitForm:
 
 
 if __name__ == '__main__':
-    form = SubmitForm(0, 1, 2, .1, .2, .3)
+    form = FormData(0, 1, 2, .1, .2, .3)
     for i in fields(form):
         print(i)
