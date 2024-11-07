@@ -2,3 +2,5 @@ cellar/imgs/*
 cells.jpg
 .idea/
 .venv/
+**__pycache__**
+**.pyc
